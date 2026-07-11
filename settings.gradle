@@ -1,0 +1,4 @@
+rootProject.name = 'hyunjiin-server'
+
+include 'core'
+include 'user-api'
