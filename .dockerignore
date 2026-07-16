@@ -1,0 +1,10 @@
+.git
+.github
+.gradle
+build
+core/build
+user-api/build
+out
+*.iml
+.idea
+.DS_Store
