@@ -79,3 +79,30 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Checkout manifest repository
+        uses: actions/checkout@v4
+        with:
+          repository: tangerine-map/Hyun-Ji-In-Manifest
+          token: ${{ secrets.MANIFEST_REPO_TOKEN }}
+          path: manifest
+
+      - name: Update manifest image tag
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          KUSTOMIZATION="manifest/apps/hyunjiin-user-api/overlays/prod/kustomization.yaml"
+          sed -i "s/^\([[:space:]]*newTag:\).*/\1 ${SHORT_SHA}/" "${KUSTOMIZATION}"
+
+      - name: Push manifest update
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          cd manifest
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/hyunjiin-user-api/overlays/prod/kustomization.yaml
+          if git diff --cached --quiet; then
+            echo "Manifest already points to ${SHORT_SHA}."
+            exit 0
+          fi
+          git commit -m "Deploy user API ${SHORT_SHA}"
+          git push
