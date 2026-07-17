@@ -5,12 +5,9 @@ import com.example.hyunjiinserver.core.restaurant.domain.RestaurantErrorCode;
 import com.example.hyunjiinserver.core.restaurant.domain.RestaurantMapSearchCondition;
 
 public record FindRestaurantsQuery(
-        double southWestLatitude,
-        double southWestLongitude,
-        double northEastLatitude,
-        double northEastLongitude,
-        Double userLatitude,
-        Double userLongitude,
+        double centerLatitude,
+        double centerLongitude,
+        Integer radiusMeters,
         String keyword,
         String category,
         Boolean localRecommended,
@@ -18,9 +15,13 @@ public record FindRestaurantsQuery(
 ) {
 
     private static final int DEFAULT_LIMIT = 50;
+    private static final int DEFAULT_RADIUS_METERS = 3_000;
+    private static final double METERS_PER_LATITUDE_DEGREE = 111_320.0;
 
     public FindRestaurantsQuery {
-        if (southWestLatitude >= northEastLatitude || southWestLongitude >= northEastLongitude) {
+        radiusMeters = radiusMeters == null ? DEFAULT_RADIUS_METERS : radiusMeters;
+
+        if (radiusMeters <= 0) {
             throw new BusinessException(RestaurantErrorCode.INVALID_MAP_BOUNDS);
         }
 
@@ -28,11 +29,14 @@ public record FindRestaurantsQuery(
     }
 
     public RestaurantMapSearchCondition toCondition() {
+        double latitudeDelta = radiusMeters / METERS_PER_LATITUDE_DEGREE;
+        double longitudeDelta = radiusMeters / (METERS_PER_LATITUDE_DEGREE * Math.cos(Math.toRadians(centerLatitude)));
+
         return new RestaurantMapSearchCondition(
-                southWestLatitude,
-                southWestLongitude,
-                northEastLatitude,
-                northEastLongitude,
+                centerLatitude - latitudeDelta,
+                centerLongitude - longitudeDelta,
+                centerLatitude + latitudeDelta,
+                centerLongitude + longitudeDelta,
                 keyword,
                 category,
                 localRecommended,

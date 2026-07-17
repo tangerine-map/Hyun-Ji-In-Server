@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 public enum RestaurantErrorCode implements ErrorCode {
 
     RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "식당을 찾을 수 없습니다."),
-    INVALID_MAP_BOUNDS(HttpStatus.BAD_REQUEST, "지도 영역 값이 올바르지 않습니다.");
+    INVALID_MAP_BOUNDS(HttpStatus.BAD_REQUEST, "지도 검색 영역 값이 올바르지 않습니다.");
 
     private final HttpStatus status;
     private final String message;

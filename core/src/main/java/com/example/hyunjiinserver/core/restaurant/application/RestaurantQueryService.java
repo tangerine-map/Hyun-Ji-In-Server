@@ -72,7 +72,7 @@ public class RestaurantQueryService {
                 representativeMenu == null ? null : representativeMenu.getPrice(),
                 restaurant.getLatitude(),
                 restaurant.getLongitude(),
-                distanceMeters(query.userLatitude(), query.userLongitude(), restaurant),
+                distanceMeters(query.centerLatitude(), query.centerLongitude(), restaurant),
                 restaurant.getPriceAdequacyLabel(),
                 restaurant.isLocalRecommended(),
                 false
@@ -98,11 +98,7 @@ public class RestaurantQueryService {
         );
     }
 
-    private Integer distanceMeters(Double userLatitude, Double userLongitude, Restaurant restaurant) {
-        if (userLatitude == null || userLongitude == null) {
-            return null;
-        }
-
+    private Integer distanceMeters(double userLatitude, double userLongitude, Restaurant restaurant) {
         double earthRadiusMeters = 6_371_000;
         double userLatRad = Math.toRadians(userLatitude);
         double restaurantLatRad = Math.toRadians(restaurant.getLatitude());
