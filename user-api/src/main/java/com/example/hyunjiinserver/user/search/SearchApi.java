@@ -61,7 +61,28 @@ public interface SearchApi {
             @ApiResponse(
                     responseCode = "400",
                     description = "요청 파라미터가 올바르지 않음",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "자동완성 검증 실패 예시",
+                                    value = """
+                                            {
+                                              "code": "VALIDATION_ERROR",
+                                              "message": "요청 값이 올바르지 않습니다.",
+                                              "fields": [
+                                                {
+                                                  "field": "keyword",
+                                                  "message": "검색어는 필수입니다."
+                                                },
+                                                {
+                                                  "field": "limit",
+                                                  "message": "조회 개수는 20 이하여야 합니다."
+                                                }
+                                              ]
+                                            }
+                                            """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",

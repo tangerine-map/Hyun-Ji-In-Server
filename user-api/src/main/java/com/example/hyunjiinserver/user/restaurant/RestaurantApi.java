@@ -3,6 +3,7 @@ package com.example.hyunjiinserver.user.restaurant;
 import com.example.hyunjiinserver.user.global.error.ErrorResponse;
 import com.example.hyunjiinserver.user.global.error.ValidationErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -63,7 +64,28 @@ public interface RestaurantApi {
             @ApiResponse(
                     responseCode = "400",
                     description = "요청 파라미터가 올바르지 않음",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "지도 조회 검증 실패 예시",
+                                    value = """
+                                            {
+                                              "code": "VALIDATION_ERROR",
+                                              "message": "요청 값이 올바르지 않습니다.",
+                                              "fields": [
+                                                {
+                                                  "field": "centerLatitude",
+                                                  "message": "중심 위도는 필수입니다."
+                                                },
+                                                {
+                                                  "field": "limit",
+                                                  "message": "조회 개수는 100 이하여야 합니다."
+                                                }
+                                              ]
+                                            }
+                                            """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -120,7 +142,18 @@ public interface RestaurantApi {
             @ApiResponse(
                     responseCode = "404",
                     description = "식당을 찾을 수 없음",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "식당 없음 예시",
+                                    value = """
+                                            {
+                                              "code": "RESTAURANT_NOT_FOUND",
+                                              "message": "식당을 찾을 수 없습니다."
+                                            }
+                                            """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -130,23 +163,88 @@ public interface RestaurantApi {
     })
     @GetMapping("/{restaurantId}")
     RestaurantDetailResponse getRestaurantDetail(
+            @Parameter(description = "조회할 식당 ID입니다.", example = "1", required = true)
             @PathVariable Long restaurantId
     );
 
     @Operation(
             summary = "식당 현지인 코멘트 조회",
-            description = "식당 상세 화면에서 노출할 현지인 코멘트 목록을 조회합니다."
+            description = """
+                    식당 상세 화면에서 노출할 현지인 코멘트 목록을 조회합니다.
+
+                    - `restaurantId`는 식당 상세 조회 응답의 `id`를 전달합니다.
+                    - `sort`는 생략 가능하며, 지원하지 않는 값은 서버 기본 정렬로 처리됩니다.
+                    - `limit`로 상세 화면 첫 페이지에 필요한 개수만 제한해서 가져올 수 있습니다.
+                    """
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "현지인 코멘트 조회 성공",
-                    content = @Content(schema = @Schema(implementation = RestaurantCommentsResponse.class))
+                    content = @Content(
+                            schema = @Schema(implementation = RestaurantCommentsResponse.class),
+                            examples = @ExampleObject(
+                                    name = "현지인 코멘트 예시",
+                                    value = """
+                                            {
+                                              "comments": [
+                                                {
+                                                  "id": 100,
+                                                  "authorContext": "제주 거주자",
+                                                  "content": "점심시간에는 대기가 있지만 회전이 빨라요.",
+                                                  "helpfulCount": 12,
+                                                  "createdAt": "2026-07-21T12:30:00+09:00"
+                                                },
+                                                {
+                                                  "id": 101,
+                                                  "authorContext": "근처 직장인",
+                                                  "content": "관광지 근처 치고 가격이 과하지 않은 편입니다.",
+                                                  "helpfulCount": 8,
+                                                  "createdAt": "2026-07-20T18:10:00+09:00"
+                                                }
+                                              ]
+                                            }
+                                            """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "요청 파라미터가 올바르지 않음",
-                    content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+                    content = @Content(
+                            schema = @Schema(implementation = ValidationErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "코멘트 조회 검증 실패 예시",
+                                    value = """
+                                            {
+                                              "code": "VALIDATION_ERROR",
+                                              "message": "요청 값이 올바르지 않습니다.",
+                                              "fields": [
+                                                {
+                                                  "field": "limit",
+                                                  "message": "조회 개수는 100 이하여야 합니다."
+                                                }
+                                              ]
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "식당을 찾을 수 없음",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "식당 없음 예시",
+                                    value = """
+                                            {
+                                              "code": "RESTAURANT_NOT_FOUND",
+                                              "message": "식당을 찾을 수 없습니다."
+                                            }
+                                            """
+                            )
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
@@ -156,6 +254,7 @@ public interface RestaurantApi {
     })
     @GetMapping("/{restaurantId}/comments")
     RestaurantCommentsResponse getRestaurantComments(
+            @Parameter(description = "코멘트를 조회할 식당 ID입니다.", example = "1", required = true)
             @PathVariable Long restaurantId,
             @Valid @ParameterObject @ModelAttribute RestaurantCommentSearchRequest request
     );
