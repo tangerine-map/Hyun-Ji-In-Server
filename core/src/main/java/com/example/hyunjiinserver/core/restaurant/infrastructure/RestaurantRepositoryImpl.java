@@ -5,6 +5,7 @@ import com.example.hyunjiinserver.core.restaurant.domain.Restaurant;
 import com.example.hyunjiinserver.core.restaurant.domain.RestaurantCommentSearchCondition;
 import com.example.hyunjiinserver.core.restaurant.domain.RestaurantMapSearchCondition;
 import com.example.hyunjiinserver.core.restaurant.domain.RestaurantRepository;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,14 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     @Override
     public Optional<Restaurant> findById(Long id) {
         return restaurantJpaRepository.findById(id);
+    }
+
+    @Override
+    public List<Restaurant> findByIds(Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return restaurantJpaRepository.findAllById(ids);
     }
 
     @Override
