@@ -171,7 +171,7 @@ public interface RestaurantApi {
     })
     @GetMapping("/{restaurantId}")
     RestaurantDetailResponse getRestaurantDetail(
-            @Parameter(description = "기기 식별자입니다. 전달하면 저장 여부(saved)가 함께 반환되고, 생략하면 saved는 false로 반환됩니다.", example = "device-1234")
+            @Parameter(description = "기기 식별자입니다. 전달하면 저장 여부(saved)가 함께 반환되고 최근 본 식당 목록에 자동 기록됩니다. 생략하면 saved는 false로 반환되고 기록도 남지 않습니다.", example = "device-1234")
             @RequestHeader(value = "X-Device-Id", required = false) String deviceId,
             @Parameter(description = "조회할 식당 ID입니다.", example = "1", required = true)
             @PathVariable Long restaurantId
