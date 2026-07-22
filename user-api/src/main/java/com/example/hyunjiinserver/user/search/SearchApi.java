@@ -1,7 +1,9 @@
 package com.example.hyunjiinserver.user.search;
 
-import com.example.hyunjiinserver.user.global.error.ErrorResponse;
-import com.example.hyunjiinserver.user.global.error.ValidationErrorResponse;
+import com.example.hyunjiinserver.user.global.error.dto.ErrorResponse;
+import com.example.hyunjiinserver.user.global.error.dto.ValidationErrorResponse;
+import com.example.hyunjiinserver.user.search.dto.SearchSuggestionRequest;
+import com.example.hyunjiinserver.user.search.dto.SearchSuggestionsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

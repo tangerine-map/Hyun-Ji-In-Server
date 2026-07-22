@@ -1,7 +1,12 @@
 package com.example.hyunjiinserver.user.restaurant;
 
-import com.example.hyunjiinserver.user.global.error.ErrorResponse;
-import com.example.hyunjiinserver.user.global.error.ValidationErrorResponse;
+import com.example.hyunjiinserver.user.global.error.dto.ErrorResponse;
+import com.example.hyunjiinserver.user.global.error.dto.ValidationErrorResponse;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantCommentSearchRequest;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantCommentsResponse;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantDetailResponse;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantMapResponse;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantMapSearchRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

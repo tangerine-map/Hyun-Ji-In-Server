@@ -1,4 +1,4 @@
-package com.example.hyunjiinserver.user.search;
+package com.example.hyunjiinserver.user.search.dto;
 
 import com.example.hyunjiinserver.core.search.domain.SearchSuggestionResult;
 import io.swagger.v3.oas.annotations.media.Schema;

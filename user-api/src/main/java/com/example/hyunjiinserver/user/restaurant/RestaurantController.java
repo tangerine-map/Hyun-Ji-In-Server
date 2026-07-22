@@ -5,6 +5,11 @@ import com.example.hyunjiinserver.core.restaurant.application.RestaurantQuerySer
 import com.example.hyunjiinserver.core.restaurant.application.GetRestaurantDetailQuery;
 import com.example.hyunjiinserver.core.restaurant.application.RestaurantCommentsResult;
 import com.example.hyunjiinserver.core.restaurant.application.RestaurantDetailResult;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantCommentSearchRequest;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantCommentsResponse;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantDetailResponse;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantMapResponse;
+import com.example.hyunjiinserver.user.restaurant.dto.RestaurantMapSearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 

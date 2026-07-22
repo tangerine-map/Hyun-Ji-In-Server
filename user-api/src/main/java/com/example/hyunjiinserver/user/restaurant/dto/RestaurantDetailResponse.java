@@ -1,4 +1,4 @@
-package com.example.hyunjiinserver.user.restaurant;
+package com.example.hyunjiinserver.user.restaurant.dto;
 
 import com.example.hyunjiinserver.core.restaurant.application.RestaurantDetailResult;
 import io.swagger.v3.oas.annotations.media.Schema;

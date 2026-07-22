@@ -1,4 +1,4 @@
-package com.example.hyunjiinserver.user.global.error;
+package com.example.hyunjiinserver.user.global.error.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
