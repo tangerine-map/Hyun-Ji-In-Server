@@ -41,7 +41,7 @@ public record RestaurantMapSearchRequest(
         Integer limit
 ) {
 
-    public FindRestaurantsQuery toQuery() {
+    public FindRestaurantsQuery toQuery(String deviceId) {
         return new FindRestaurantsQuery(
                 centerLatitude,
                 centerLongitude,
@@ -49,7 +49,8 @@ public record RestaurantMapSearchRequest(
                 keyword,
                 category,
                 localRecommended,
-                limit
+                limit,
+                deviceId
         );
     }
 }

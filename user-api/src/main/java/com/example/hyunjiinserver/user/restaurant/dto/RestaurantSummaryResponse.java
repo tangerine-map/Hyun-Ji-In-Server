@@ -31,7 +31,7 @@ public record RestaurantSummaryResponse(
         @Schema(description = "현지인 추천 뱃지 노출 여부입니다.", example = "true")
         boolean localRecommended,
 
-        @Schema(description = "현재 사용자의 저장 여부입니다. 로그인/저장 기능 연동 전에는 false입니다.", example = "false")
+        @Schema(description = "현재 기기(X-Device-Id) 기준 저장 여부입니다. 헤더를 생략하면 false입니다.", example = "false")
         boolean saved
 ) {
 

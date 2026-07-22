@@ -20,6 +20,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(name = "Restaurants", description = "식당 탐색 API")
@@ -100,6 +101,8 @@ public interface RestaurantApi {
     })
     @GetMapping("/map")
     RestaurantMapResponse findRestaurants(
+            @Parameter(description = "기기 식별자입니다. 전달하면 각 식당의 저장 여부(saved)가 함께 반환되고, 생략하면 saved는 false로 반환됩니다.", example = "device-1234")
+            @RequestHeader(value = "X-Device-Id", required = false) String deviceId,
             @Valid @ParameterObject @ModelAttribute RestaurantMapSearchRequest request
     );
 
@@ -168,6 +171,8 @@ public interface RestaurantApi {
     })
     @GetMapping("/{restaurantId}")
     RestaurantDetailResponse getRestaurantDetail(
+            @Parameter(description = "기기 식별자입니다. 전달하면 저장 여부(saved)가 함께 반환되고, 생략하면 saved는 false로 반환됩니다.", example = "device-1234")
+            @RequestHeader(value = "X-Device-Id", required = false) String deviceId,
             @Parameter(description = "조회할 식당 ID입니다.", example = "1", required = true)
             @PathVariable Long restaurantId
     );

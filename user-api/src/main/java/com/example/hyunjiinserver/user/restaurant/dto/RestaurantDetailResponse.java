@@ -44,7 +44,7 @@ public record RestaurantDetailResponse(
         @Schema(description = "가격 적정도 상세 설명입니다.", example = "주변 유사 메뉴 대비 평균 가격대입니다.")
         String priceAdequacyDescription,
 
-        @Schema(description = "현재 사용자의 저장 여부입니다. 로그인/저장 기능 연동 전에는 false입니다.", example = "false")
+        @Schema(description = "현재 기기(X-Device-Id) 기준 저장 여부입니다. 헤더를 생략하면 false입니다.", example = "false")
         boolean saved,
 
         @Schema(description = "대표 메뉴 목록입니다.")

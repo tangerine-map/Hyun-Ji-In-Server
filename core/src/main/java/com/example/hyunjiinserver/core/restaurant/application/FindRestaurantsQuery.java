@@ -11,7 +11,8 @@ public record FindRestaurantsQuery(
         String keyword,
         String category,
         Boolean localRecommended,
-        Integer limit
+        Integer limit,
+        String deviceId
 ) {
 
     private static final int DEFAULT_LIMIT = 50;

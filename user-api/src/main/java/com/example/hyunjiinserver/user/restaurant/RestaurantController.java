@@ -20,15 +20,15 @@ public class RestaurantController implements RestaurantApi {
     private final RestaurantQueryService restaurantQueryService;
 
     @Override
-    public RestaurantMapResponse findRestaurants(RestaurantMapSearchRequest request) {
-        RestaurantMapResult result = restaurantQueryService.findRestaurants(request.toQuery());
+    public RestaurantMapResponse findRestaurants(String deviceId, RestaurantMapSearchRequest request) {
+        RestaurantMapResult result = restaurantQueryService.findRestaurants(request.toQuery(deviceId));
         return RestaurantMapResponse.from(result);
     }
 
     @Override
-    public RestaurantDetailResponse getRestaurantDetail(Long restaurantId) {
+    public RestaurantDetailResponse getRestaurantDetail(String deviceId, Long restaurantId) {
         RestaurantDetailResult result = restaurantQueryService.getRestaurantDetail(
-                new GetRestaurantDetailQuery(restaurantId, null)
+                new GetRestaurantDetailQuery(restaurantId, deviceId)
         );
         return RestaurantDetailResponse.from(result);
     }
