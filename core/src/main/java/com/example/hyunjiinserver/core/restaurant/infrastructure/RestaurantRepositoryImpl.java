@@ -29,6 +29,11 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     }
 
     @Override
+    public Optional<Restaurant> findByTourContentId(String tourContentId) {
+        return restaurantJpaRepository.findByTourContentId(tourContentId);
+    }
+
+    @Override
     public List<Restaurant> findByIds(Collection<Long> ids) {
         if (ids.isEmpty()) {
             return List.of();
@@ -39,5 +44,10 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     @Override
     public List<LocalComment> findComments(RestaurantCommentSearchCondition condition) {
         return restaurantQueryRepository.findComments(condition);
+    }
+
+    @Override
+    public Restaurant save(Restaurant restaurant) {
+        return restaurantJpaRepository.save(restaurant);
     }
 }

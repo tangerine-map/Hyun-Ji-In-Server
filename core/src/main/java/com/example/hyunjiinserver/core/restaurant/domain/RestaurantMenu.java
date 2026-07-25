@@ -30,9 +30,23 @@ public class RestaurantMenu {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false)
+    @Column
     private Integer price;
 
     @Column(nullable = false)
     private boolean representative;
+
+    static RestaurantMenu unpricedRepresentative(Restaurant restaurant, String name) {
+        RestaurantMenu menu = new RestaurantMenu();
+        menu.restaurant = restaurant;
+        menu.name = name;
+        menu.representative = true;
+        return menu;
+    }
+
+    void updateImportedName(String name) {
+        if (price == null) {
+            this.name = name;
+        }
+    }
 }

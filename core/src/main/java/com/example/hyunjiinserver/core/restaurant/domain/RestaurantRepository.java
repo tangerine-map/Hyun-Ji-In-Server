@@ -10,7 +10,11 @@ public interface RestaurantRepository {
 
     Optional<Restaurant> findById(Long id);
 
+    Optional<Restaurant> findByTourContentId(String tourContentId);
+
     List<Restaurant> findByIds(Collection<Long> ids);
 
     List<LocalComment> findComments(RestaurantCommentSearchCondition condition);
+
+    Restaurant save(Restaurant restaurant);
 }
