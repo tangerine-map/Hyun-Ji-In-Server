@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface TourApiRestaurantClient {
 
-    List<TourApiRestaurantData> fetchJejuRestaurants(int maxItems);
+    List<TourApiRestaurantData> fetchJejuRestaurants(String serviceKey, int maxItems);
 }

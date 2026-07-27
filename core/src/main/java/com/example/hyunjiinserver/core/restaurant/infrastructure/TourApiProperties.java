@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 public class TourApiProperties {
 
     private String baseUrl = "https://apis.data.go.kr/B551011/KorService2";
-    private String serviceKey = "";
     private String mobileOs = "ETC";
     private String mobileApp = "hyunjiin";
     private int areaCode = 39;

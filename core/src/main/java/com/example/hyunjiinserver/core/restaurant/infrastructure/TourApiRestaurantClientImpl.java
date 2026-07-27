@@ -39,8 +39,8 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
     }
 
     @Override
-    public List<TourApiRestaurantData> fetchJejuRestaurants(int maxItems) {
-        validateConfiguration(maxItems);
+    public List<TourApiRestaurantData> fetchJejuRestaurants(String serviceKey, int maxItems) {
+        validateConfiguration(serviceKey, maxItems);
 
         List<TourApiRestaurantData> restaurants = new ArrayList<>();
         int pageNumber = 1;
@@ -48,7 +48,7 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
 
         while (restaurants.size() < maxItems
                 && (pageNumber - 1) * properties.getPageSize() < totalCount) {
-            TourApiPage page = fetchList(pageNumber);
+            TourApiPage page = fetchList(serviceKey, pageNumber);
             totalCount = page.totalCount();
             if (page.items().isEmpty()) {
                 break;
@@ -62,8 +62,8 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
                     log.warn("TourAPI restaurant skipped because contentId is missing.");
                     continue;
                 }
-                TourApiCommonDetail commonDetail = fetchCommonDetail(item.contentId());
-                TourApiIntroDetail introDetail = fetchIntroDetail(item.contentId());
+                TourApiCommonDetail commonDetail = fetchCommonDetail(serviceKey, item.contentId());
+                TourApiIntroDetail introDetail = fetchIntroDetail(serviceKey, item.contentId());
                 restaurantMapper.map(item, commonDetail, introDetail)
                         .ifPresentOrElse(
                                 restaurants::add,
@@ -76,8 +76,9 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
         return List.copyOf(restaurants);
     }
 
-    private TourApiPage fetchList(int pageNumber) {
+    private TourApiPage fetchList(String serviceKey, int pageNumber) {
         return responseParser.parseList(request(
+                serviceKey,
                 "/areaBasedList2",
                 Map.of(
                         "areaCode", String.valueOf(properties.getAreaCode()),
@@ -89,15 +90,17 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
         ));
     }
 
-    private TourApiCommonDetail fetchCommonDetail(String contentId) {
+    private TourApiCommonDetail fetchCommonDetail(String serviceKey, String contentId) {
         return responseParser.parseCommonDetail(request(
+                serviceKey,
                 "/detailCommon2",
                 Map.of("contentId", contentId)
         ));
     }
 
-    private TourApiIntroDetail fetchIntroDetail(String contentId) {
+    private TourApiIntroDetail fetchIntroDetail(String serviceKey, String contentId) {
         return responseParser.parseIntroDetail(request(
+                serviceKey,
                 "/detailIntro2",
                 Map.of(
                         "contentId", contentId,
@@ -106,9 +109,9 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
         ));
     }
 
-    private String request(String path, Map<String, String> operationParameters) {
+    private String request(String serviceKey, String path, Map<String, String> operationParameters) {
         MultiValueMap<String, String> queryParameters = new LinkedMultiValueMap<>();
-        queryParameters.add("serviceKey", properties.getServiceKey());
+        queryParameters.add("serviceKey", serviceKey);
         queryParameters.add("MobileOS", properties.getMobileOs());
         queryParameters.add("MobileApp", properties.getMobileApp());
         queryParameters.add("_type", JSON_TYPE);
@@ -128,9 +131,9 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
         }
     }
 
-    private void validateConfiguration(int maxItems) {
-        if (properties.getServiceKey() == null || properties.getServiceKey().isBlank()) {
-            throw new TourApiClientException("TOUR_API_SERVICE_KEY가 설정되지 않았습니다.");
+    private void validateConfiguration(String serviceKey, int maxItems) {
+        if (serviceKey == null || serviceKey.isBlank()) {
+            throw new TourApiClientException("TourAPI 서비스 키가 요청에 포함되지 않았습니다.");
         }
         if (properties.getPageSize() <= 0 || maxItems <= 0) {
             throw new TourApiClientException("TourAPI page-size와 maxItems는 1 이상이어야 합니다.");

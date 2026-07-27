@@ -37,11 +37,6 @@ public interface TourApiRestaurantSyncApi {
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
             ),
             @ApiResponse(
-                    responseCode = "401",
-                    description = "동기화 API 인증 실패",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            ),
-            @ApiResponse(
                     responseCode = "502",
                     description = "한국관광공사 API 호출 실패",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
@@ -49,8 +44,8 @@ public interface TourApiRestaurantSyncApi {
     })
     @PostMapping("/sync")
     TourApiRestaurantSyncResponse synchronize(
-            @Parameter(description = "서버에 설정한 수동 동기화 인증키", required = true)
-            @RequestHeader(value = "X-Sync-Api-Key", required = false) String syncApiKey,
+            @Parameter(description = "공공데이터포털에서 발급받은 TourAPI Decoding 인증키입니다. 서버에 저장하지 않고 이번 요청에만 사용합니다.", required = true)
+            @RequestHeader("X-Tour-Api-Key") String tourApiKey,
             @Valid @RequestBody TourApiRestaurantSyncRequest request
     );
 }

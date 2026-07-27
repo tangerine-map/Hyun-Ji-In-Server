@@ -8,6 +8,7 @@ import com.example.hyunjiinserver.core.global.error.BusinessException;
 import com.example.hyunjiinserver.core.restaurant.domain.RestaurantErrorCode;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 class TourApiRestaurantSyncServiceTest {
@@ -15,7 +16,9 @@ class TourApiRestaurantSyncServiceTest {
     @Test
     void passesRequestedLimitAndReturnsImportResult() {
         AtomicInteger requestedLimit = new AtomicInteger();
-        TourApiRestaurantClient client = maxItems -> {
+        AtomicReference<String> requestedServiceKey = new AtomicReference<>();
+        TourApiRestaurantClient client = (serviceKey, maxItems) -> {
+            requestedServiceKey.set(serviceKey);
             requestedLimit.set(maxItems);
             return List.of();
         };
@@ -27,20 +30,25 @@ class TourApiRestaurantSyncServiceTest {
             }
         };
 
-        RestaurantImportResult result = new TourApiRestaurantSyncService(client, importService).synchronize(120);
+        RestaurantImportResult result = new TourApiRestaurantSyncService(client, importService)
+                .synchronize("request-service-key", 120);
 
+        assertEquals("request-service-key", requestedServiceKey.get());
         assertEquals(120, requestedLimit.get());
         assertSame(expected, result);
     }
 
     @Test
     void convertsTourApiFailureToBusinessException() {
-        TourApiRestaurantClient client = maxItems -> {
+        TourApiRestaurantClient client = (serviceKey, maxItems) -> {
             throw new IllegalStateException("upstream failed");
         };
         TourApiRestaurantSyncService service = new TourApiRestaurantSyncService(client, null);
 
-        BusinessException exception = assertThrows(BusinessException.class, () -> service.synchronize(100));
+        BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> service.synchronize("request-service-key", 100)
+        );
 
         assertEquals(RestaurantErrorCode.TOUR_API_SYNC_FAILED, exception.getErrorCode());
     }

@@ -4,7 +4,6 @@ import com.example.hyunjiinserver.core.global.error.BusinessException;
 import com.example.hyunjiinserver.core.global.error.ErrorCode;
 import com.example.hyunjiinserver.user.global.error.dto.ErrorResponse;
 import com.example.hyunjiinserver.user.global.error.dto.ValidationErrorResponse;
-import com.example.hyunjiinserver.user.global.security.InternalApiAuthenticationException;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(InternalApiAuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleInternalApiAuthenticationException(
-            InternalApiAuthenticationException exception
-    ) {
-        return ResponseEntity
-                .status(exception.getStatus())
-                .body(new ErrorResponse(exception.getCode(), exception.getMessage()));
-    }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException exception) {

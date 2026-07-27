@@ -13,10 +13,10 @@ public class TourApiRestaurantSyncService {
     private final TourApiRestaurantClient tourApiRestaurantClient;
     private final RestaurantImportService restaurantImportService;
 
-    public RestaurantImportResult synchronize(int maxItems) {
+    public RestaurantImportResult synchronize(String serviceKey, int maxItems) {
         List<TourApiRestaurantData> restaurants;
         try {
-            restaurants = tourApiRestaurantClient.fetchJejuRestaurants(maxItems);
+            restaurants = tourApiRestaurantClient.fetchJejuRestaurants(serviceKey, maxItems);
         } catch (RuntimeException exception) {
             throw new BusinessException(RestaurantErrorCode.TOUR_API_SYNC_FAILED, exception);
         }

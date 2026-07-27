@@ -23,20 +23,14 @@ TourAPI가 메뉴 가격을 제공하지 않으므로 대표 메뉴 가격은 `n
 
 ## 서버 설정
 
-공공데이터포털에서 발급받은 일반 인증키 중 `Decoding` 키와 수동 동기화 API를 보호할 별도 키를
-환경변수로 설정한다. 두 키는 서로 다른 값을 사용한다.
+TourAPI 인증키는 서버 환경변수나 Kubernetes Secret에 저장하지 않는다. 서버는 일반 설정으로 실행하고,
+공공데이터포털에서 발급받은 `Decoding` 인증키를 동기화 요청의 `X-Tour-Api-Key` 헤더로 전달한다.
 
 ```bash
-export TOUR_API_SERVICE_KEY='발급받은 Decoding 인증키'
-export TOUR_API_SYNC_API_KEY='직접 생성한 충분히 긴 임의의 값'
 ./gradlew :user-api:bootRun
 ```
 
-동기화 API 키는 다음과 같이 생성할 수 있다.
-
-```bash
-openssl rand -base64 32
-```
+요청으로 받은 인증키는 해당 TourAPI 호출에만 사용하며 데이터베이스나 서버 설정에 저장하지 않는다.
 
 ## 수동 동기화 실행
 
@@ -45,7 +39,7 @@ openssl rand -base64 32
 ```bash
 curl -X POST 'http://localhost:8080/api/internal/tour-api/restaurants/sync' \
   -H 'Content-Type: application/json' \
-  -H "X-Sync-Api-Key: ${TOUR_API_SYNC_API_KEY}" \
+  -H "X-Tour-Api-Key: ${TOUR_API_SERVICE_KEY}" \
   -d '{"maxItems":100}'
 ```
 
@@ -65,13 +59,3 @@ curl -X POST 'http://localhost:8080/api/internal/tour-api/restaurants/sync' \
 
 같은 `tour_content_id`가 이미 있으면 새 행을 만들지 않고 기존 식당을 갱신한다. 초기 적재를 마치면
 추가 호출을 하지 않는 한 자동으로 다시 동기화되지 않는다.
-
-## Kubernetes Secret
-
-`hyunjiin-user-api-secret`에 다음 두 키를 넣고 Deployment에서 각각 환경변수로 주입한다.
-
-```yaml
-stringData:
-  tour-api-service-key: 공공데이터포털-Decoding-인증키
-  tour-api-sync-api-key: 직접-생성한-수동-동기화-인증키
-```
