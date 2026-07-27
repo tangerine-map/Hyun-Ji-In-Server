@@ -34,4 +34,3 @@ tour-api:
   mobile-app: ${TOUR_API_MOBILE_APP:hyunjiin}
   area-code: ${TOUR_API_AREA_CODE:39}
   content-type-id: ${TOUR_API_CONTENT_TYPE_ID:39}
-  page-size: ${TOUR_API_PAGE_SIZE:100}

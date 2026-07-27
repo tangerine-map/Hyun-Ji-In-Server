@@ -23,7 +23,8 @@ public interface TourApiRestaurantSyncApi {
 
     @Operation(
             summary = "제주 음식점 수동 동기화",
-            description = "요청한 개수만큼 한국관광공사 음식점 정보를 조회하여 생성하거나 갱신합니다."
+            description = "요청한 페이지의 한국관광공사 음식점 정보를 조회하여 생성하거나 갱신합니다. "
+                    + "응답의 nextPageNo를 다음 요청의 pageNo로 사용합니다."
     )
     @ApiResponses({
             @ApiResponse(
@@ -35,6 +36,11 @@ public interface TourApiRestaurantSyncApi {
                     responseCode = "400",
                     description = "요청 값이 올바르지 않음",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "다른 동기화 요청이 진행 중임",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(
                     responseCode = "500",

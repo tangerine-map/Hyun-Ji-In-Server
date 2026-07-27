@@ -16,5 +16,4 @@ public class TourApiProperties {
     private String mobileApp = "hyunjiin";
     private int areaCode = 39;
     private int contentTypeId = 39;
-    private int pageSize = 100;
 }

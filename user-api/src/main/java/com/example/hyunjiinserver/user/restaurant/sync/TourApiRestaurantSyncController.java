@@ -1,7 +1,7 @@
 package com.example.hyunjiinserver.user.restaurant.sync;
 
-import com.example.hyunjiinserver.core.restaurant.application.RestaurantImportResult;
 import com.example.hyunjiinserver.core.restaurant.application.TourApiRestaurantSyncService;
+import com.example.hyunjiinserver.core.restaurant.application.TourApiRestaurantSyncResult;
 import com.example.hyunjiinserver.user.restaurant.sync.dto.TourApiRestaurantSyncRequest;
 import com.example.hyunjiinserver.user.restaurant.sync.dto.TourApiRestaurantSyncResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,13 @@ public class TourApiRestaurantSyncController implements TourApiRestaurantSyncApi
             String tourApiKey,
             TourApiRestaurantSyncRequest request
     ) {
-        log.info("TourAPI restaurant sync request received. maxItems={}", request.maxItems());
-        RestaurantImportResult result = tourApiRestaurantSyncService.synchronize(tourApiKey, request.maxItems());
+        int pageNo = request.resolvedPageNo();
+        log.info("TourAPI restaurant sync request received. pageNo={}, maxItems={}", pageNo, request.maxItems());
+        TourApiRestaurantSyncResult result = tourApiRestaurantSyncService.synchronize(
+                tourApiKey,
+                pageNo,
+                request.maxItems()
+        );
         return TourApiRestaurantSyncResponse.from(result);
     }
 }

@@ -2,6 +2,7 @@ package com.example.hyunjiinserver.core.restaurant.infrastructure;
 
 import com.example.hyunjiinserver.core.restaurant.application.TourApiRestaurantClient;
 import com.example.hyunjiinserver.core.restaurant.application.TourApiRestaurantData;
+import com.example.hyunjiinserver.core.restaurant.application.TourApiRestaurantPage;
 import com.example.hyunjiinserver.core.restaurant.infrastructure.TourApiResponseParser.TourApiCommonDetail;
 import com.example.hyunjiinserver.core.restaurant.infrastructure.TourApiResponseParser.TourApiIntroDetail;
 import com.example.hyunjiinserver.core.restaurant.infrastructure.TourApiResponseParser.TourApiListItem;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestClientException;
 class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
 
     private static final String JSON_TYPE = "json";
+    private static final int MAX_PAGE_SIZE = 100;
 
     private final TourApiProperties properties;
     private final TourApiResponseParser responseParser;
@@ -39,44 +41,30 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
     }
 
     @Override
-    public List<TourApiRestaurantData> fetchJejuRestaurants(String serviceKey, int maxItems) {
-        validateConfiguration(serviceKey, maxItems);
+    public TourApiRestaurantPage fetchJejuRestaurants(String serviceKey, int pageNo, int maxItems) {
+        validateRequest(serviceKey, pageNo, maxItems);
 
         List<TourApiRestaurantData> restaurants = new ArrayList<>();
-        int pageNumber = 1;
-        int totalCount = Integer.MAX_VALUE;
-
-        while (restaurants.size() < maxItems
-                && (pageNumber - 1) * properties.getPageSize() < totalCount) {
-            TourApiPage page = fetchList(serviceKey, pageNumber);
-            totalCount = page.totalCount();
-            if (page.items().isEmpty()) {
-                break;
+        TourApiPage page = fetchList(serviceKey, pageNo, maxItems);
+        for (TourApiListItem item : page.items()) {
+            if (item.contentId() == null || item.contentId().isBlank()) {
+                log.warn("TourAPI restaurant skipped because contentId is missing.");
+                continue;
             }
-
-            for (TourApiListItem item : page.items()) {
-                if (restaurants.size() >= maxItems) {
-                    break;
-                }
-                if (item.contentId() == null || item.contentId().isBlank()) {
-                    log.warn("TourAPI restaurant skipped because contentId is missing.");
-                    continue;
-                }
-                TourApiCommonDetail commonDetail = fetchCommonDetail(serviceKey, item.contentId());
-                TourApiIntroDetail introDetail = fetchIntroDetail(serviceKey, item.contentId());
-                restaurantMapper.map(item, commonDetail, introDetail)
-                        .ifPresentOrElse(
-                                restaurants::add,
-                                () -> log.warn("TourAPI restaurant skipped because required data is missing. contentId={}", item.contentId())
-                        );
-            }
-            pageNumber++;
+            TourApiCommonDetail commonDetail = fetchCommonDetail(serviceKey, item.contentId());
+            TourApiIntroDetail introDetail = fetchIntroDetail(serviceKey, item.contentId());
+            restaurantMapper.map(item, commonDetail, introDetail)
+                    .ifPresentOrElse(
+                            restaurants::add,
+                            () -> log.warn("TourAPI restaurant skipped because required data is missing. contentId={}", item.contentId())
+                    );
         }
 
-        return List.copyOf(restaurants);
+        Integer nextPageNo = (long) pageNo * maxItems < page.totalCount() ? pageNo + 1 : null;
+        return new TourApiRestaurantPage(restaurants, pageNo, nextPageNo);
     }
 
-    private TourApiPage fetchList(String serviceKey, int pageNumber) {
+    private TourApiPage fetchList(String serviceKey, int pageNo, int maxItems) {
         return responseParser.parseList(request(
                 serviceKey,
                 "/areaBasedList2",
@@ -84,8 +72,8 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
                         "areaCode", String.valueOf(properties.getAreaCode()),
                         "contentTypeId", String.valueOf(properties.getContentTypeId()),
                         "arrange", "O",
-                        "numOfRows", String.valueOf(properties.getPageSize()),
-                        "pageNo", String.valueOf(pageNumber)
+                        "numOfRows", String.valueOf(maxItems),
+                        "pageNo", String.valueOf(pageNo)
                 )
         ));
     }
@@ -134,12 +122,12 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
         }
     }
 
-    private void validateConfiguration(String serviceKey, int maxItems) {
+    private void validateRequest(String serviceKey, int pageNo, int maxItems) {
         if (serviceKey == null || serviceKey.isBlank()) {
             throw new TourApiClientException("TourAPI 서비스 키가 요청에 포함되지 않았습니다.");
         }
-        if (properties.getPageSize() <= 0 || maxItems <= 0) {
-            throw new TourApiClientException("TourAPI page-size와 maxItems는 1 이상이어야 합니다.");
+        if (pageNo <= 0 || maxItems <= 0 || maxItems > MAX_PAGE_SIZE) {
+            throw new TourApiClientException("TourAPI pageNo는 1 이상, maxItems는 1~100이어야 합니다.");
         }
     }
 }
