@@ -37,7 +37,7 @@ public interface TourApiRestaurantSyncApi {
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
             ),
             @ApiResponse(
-                    responseCode = "502",
+                    responseCode = "500",
                     description = "한국관광공사 API 호출 실패",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )

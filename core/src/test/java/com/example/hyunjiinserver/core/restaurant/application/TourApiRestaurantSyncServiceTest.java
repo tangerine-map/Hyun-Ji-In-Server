@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 class TourApiRestaurantSyncServiceTest {
 
@@ -51,5 +52,6 @@ class TourApiRestaurantSyncServiceTest {
         );
 
         assertEquals(RestaurantErrorCode.TOUR_API_SYNC_FAILED, exception.getErrorCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getErrorCode().status());
     }
 }
