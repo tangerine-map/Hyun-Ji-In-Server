@@ -111,7 +111,6 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
 
     private String request(String serviceKey, String path, Map<String, String> operationParameters) {
         MultiValueMap<String, String> queryParameters = new LinkedMultiValueMap<>();
-        queryParameters.add("serviceKey", serviceKey);
         queryParameters.add("MobileOS", properties.getMobileOs());
         queryParameters.add("MobileApp", properties.getMobileApp());
         queryParameters.add("_type", JSON_TYPE);
@@ -119,7 +118,11 @@ class TourApiRestaurantClientImpl implements TourApiRestaurantClient {
 
         try {
             String responseBody = restClient.get()
-                    .uri(uriBuilder -> uriBuilder.path(path).queryParams(queryParameters).build())
+                    .uri(uriBuilder -> uriBuilder
+                            .path(path)
+                            .queryParam("serviceKey", "{serviceKey}")
+                            .queryParams(queryParameters)
+                            .build(serviceKey))
                     .retrieve()
                     .body(String.class);
             if (responseBody == null || responseBody.isBlank()) {
