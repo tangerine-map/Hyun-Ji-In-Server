@@ -30,8 +30,9 @@ public class RestaurantImportService {
                     updatedCount++;
                 }
                 log.info(
-                        "TourAPI restaurant saved. contentId={}, result={}",
+                        "TourAPI restaurant saved. contentId={}, name={}, result={}",
                         source.contentId(),
+                        source.name(),
                         result
                 );
             } catch (RuntimeException exception) {
