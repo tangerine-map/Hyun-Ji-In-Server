@@ -5,7 +5,8 @@ public record TourApiRestaurantSyncResult(
         Integer nextPageNo,
         int fetchedCount,
         int createdCount,
-        int updatedCount
+        int updatedCount,
+        int failedCount
 ) {
 
     public static TourApiRestaurantSyncResult of(
@@ -17,7 +18,8 @@ public record TourApiRestaurantSyncResult(
                 page.nextPageNo(),
                 importResult.fetchedCount(),
                 importResult.createdCount(),
-                importResult.updatedCount()
+                importResult.updatedCount(),
+                importResult.failedCount()
         );
     }
 }

@@ -53,11 +53,12 @@ public class TourApiRestaurantSyncService {
         try {
             RestaurantImportResult importResult = restaurantImportService.upsertTourApiRestaurants(page.restaurants());
             log.info(
-                    "TourAPI restaurant sync completed. pageNo={}, fetchedCount={}, createdCount={}, updatedCount={}",
+                    "TourAPI restaurant sync completed. pageNo={}, fetchedCount={}, createdCount={}, updatedCount={}, failedCount={}",
                     page.pageNo(),
                     importResult.fetchedCount(),
                     importResult.createdCount(),
-                    importResult.updatedCount()
+                    importResult.updatedCount(),
+                    importResult.failedCount()
             );
             return TourApiRestaurantSyncResult.of(page, importResult);
         } catch (RuntimeException exception) {

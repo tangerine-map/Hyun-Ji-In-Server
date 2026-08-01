@@ -1,64 +1,55 @@
 package com.example.hyunjiinserver.core.restaurant.application;
 
-import com.example.hyunjiinserver.core.restaurant.domain.Restaurant;
-import com.example.hyunjiinserver.core.restaurant.domain.RestaurantRepository;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RestaurantImportService {
 
-    private final RestaurantRepository restaurantRepository;
+    private final RestaurantImportTransactionService transactionService;
     private final Clock clock;
 
-    @Transactional
     public RestaurantImportResult upsertTourApiRestaurants(List<TourApiRestaurantData> sourceRestaurants) {
         int createdCount = 0;
         int updatedCount = 0;
+        int failedCount = 0;
         OffsetDateTime syncedAt = OffsetDateTime.now(clock);
 
         for (TourApiRestaurantData source : sourceRestaurants) {
-            Restaurant restaurant = restaurantRepository.findByTourContentId(source.contentId()).orElse(null);
-            if (restaurant == null) {
-                restaurant = Restaurant.importedFromTourApi(
+            try {
+                RestaurantImportItemResult result = transactionService.upsertOne(source, syncedAt);
+                if (result == RestaurantImportItemResult.CREATED) {
+                    createdCount++;
+                } else {
+                    updatedCount++;
+                }
+                log.info(
+                        "TourAPI restaurant saved. contentId={}, result={}",
                         source.contentId(),
-                        source.name(),
-                        source.category(),
-                        source.address(),
-                        source.phoneNumber(),
-                        source.openingHours(),
-                        source.latitude(),
-                        source.longitude(),
-                        source.summary(),
-                        source.representativeMenuName(),
-                        source.modifiedAt(),
-                        syncedAt
+                        result
                 );
-                createdCount++;
-            } else {
-                restaurant.updateTourApiInformation(
-                        source.name(),
-                        source.category(),
-                        source.address(),
-                        source.phoneNumber(),
-                        source.openingHours(),
-                        source.latitude(),
-                        source.longitude(),
-                        source.summary(),
-                        source.representativeMenuName(),
-                        source.modifiedAt(),
-                        syncedAt
+            } catch (RuntimeException exception) {
+                failedCount++;
+                log.error(
+                        "TourAPI restaurant save failed. contentId={}, causeType={}",
+                        source.contentId(),
+                        exception.getClass().getSimpleName(),
+                        exception
                 );
-                updatedCount++;
             }
-            restaurantRepository.save(restaurant);
         }
 
-        return new RestaurantImportResult(sourceRestaurants.size(), createdCount, updatedCount);
+        return new RestaurantImportResult(
+                sourceRestaurants.size(),
+                createdCount,
+                updatedCount,
+                failedCount
+        );
     }
 }

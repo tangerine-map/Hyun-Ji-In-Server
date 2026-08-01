@@ -24,7 +24,7 @@ class TourApiRestaurantSyncServiceTest {
             requestedLimit.set(maxItems);
             return new TourApiRestaurantPage(List.of(), pageNo, pageNo + 1);
         };
-        RestaurantImportResult expected = new RestaurantImportResult(0, 0, 0);
+        RestaurantImportResult expected = new RestaurantImportResult(0, 0, 0, 0);
         RestaurantImportService importService = new RestaurantImportService(null, null) {
             @Override
             public RestaurantImportResult upsertTourApiRestaurants(List<TourApiRestaurantData> sourceRestaurants) {
@@ -43,6 +43,7 @@ class TourApiRestaurantSyncServiceTest {
         assertEquals(expected.fetchedCount(), result.fetchedCount());
         assertEquals(expected.createdCount(), result.createdCount());
         assertEquals(expected.updatedCount(), result.updatedCount());
+        assertEquals(expected.failedCount(), result.failedCount());
     }
 
     @Test
@@ -75,7 +76,7 @@ class TourApiRestaurantSyncServiceTest {
         RestaurantImportService importService = new RestaurantImportService(null, null) {
             @Override
             public RestaurantImportResult upsertTourApiRestaurants(List<TourApiRestaurantData> sourceRestaurants) {
-                return new RestaurantImportResult(0, 0, 0);
+                return new RestaurantImportResult(0, 0, 0, 0);
             }
         };
         TourApiRestaurantSyncService service = new TourApiRestaurantSyncService(client, importService);
@@ -89,4 +90,5 @@ class TourApiRestaurantSyncServiceTest {
         );
         assertEquals(HttpStatus.CONFLICT, concurrentException.get().getErrorCode().status());
     }
+
 }
