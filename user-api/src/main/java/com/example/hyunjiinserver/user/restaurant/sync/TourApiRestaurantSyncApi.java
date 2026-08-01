@@ -12,6 +12,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -22,14 +26,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface TourApiRestaurantSyncApi {
 
     @Operation(
-            summary = "제주 음식점 수동 동기화",
-            description = "요청한 페이지의 한국관광공사 음식점 정보를 조회하여 생성하거나 갱신합니다. "
-                    + "응답의 nextPageNo를 다음 요청의 pageNo로 사용합니다."
+            summary = "제주 음식점 동기화 작업 시작",
+            description = "동기화 작업을 백그라운드에서 시작하고 즉시 jobId를 반환합니다. "
+                    + "작업 상태 조회 API에서 완료 결과와 nextPageNo를 확인합니다."
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "200",
-                    description = "동기화 완료",
+                    responseCode = "202",
+                    description = "동기화 작업 시작됨",
                     content = @Content(schema = @Schema(implementation = TourApiRestaurantSyncResponse.class))
             ),
             @ApiResponse(
@@ -41,17 +45,31 @@ public interface TourApiRestaurantSyncApi {
                     responseCode = "409",
                     description = "다른 동기화 요청이 진행 중임",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "한국관광공사 API 호출 실패",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
     @PostMapping("/sync")
-    TourApiRestaurantSyncResponse synchronize(
+    ResponseEntity<TourApiRestaurantSyncResponse> synchronize(
             @Parameter(description = "공공데이터포털에서 발급받은 TourAPI Decoding 인증키입니다. 서버에 저장하지 않고 이번 요청에만 사용합니다.", required = true)
             @RequestHeader("X-Tour-Api-Key") String tourApiKey,
             @Valid @RequestBody TourApiRestaurantSyncRequest request
     );
+
+    @Operation(
+            summary = "제주 음식점 동기화 작업 상태 조회",
+            description = "jobId로 백그라운드 동기화 진행 상태와 저장 결과를 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "작업 상태 조회 성공",
+                    content = @Content(schema = @Schema(implementation = TourApiRestaurantSyncResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "작업을 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    @GetMapping("/sync/{jobId}")
+    TourApiRestaurantSyncResponse getSyncJob(@PathVariable UUID jobId);
 }

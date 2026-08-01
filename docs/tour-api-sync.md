@@ -34,7 +34,8 @@ TourAPI 인증키는 서버 환경변수나 Kubernetes Secret에 저장하지 �
 
 ## 수동 동기화 실행
 
-서버가 실행 중일 때 다음 API를 호출한다.
+서버가 실행 중일 때 다음 API를 호출한다. 요청은 동기화 작업을 백그라운드에서 시작하고 즉시
+`202 Accepted`를 반환하므로 Nginx나 Cloudflare의 장기 HTTP 요청 제한에 영향을 받지 않는다.
 
 ```bash
 curl -X POST 'http://localhost:8080/api/internal/tour-api/restaurants/sync' \
@@ -47,11 +48,39 @@ curl -X POST 'http://localhost:8080/api/internal/tour-api/restaurants/sync' \
 
 ```json
 {
+  "jobId": "8967a42c-0f49-4f23-a936-21451b44bb1d",
+  "status": "RUNNING",
+  "pageNo": 1,
+  "nextPageNo": null,
+  "maxItems": 100,
+  "fetchedCount": 0,
+  "createdCount": 0,
+  "updatedCount": 0,
+  "failedCount": 0,
+  "errorMessage": null
+}
+```
+
+반환된 `jobId`로 작업 상태를 조회한다.
+
+```bash
+curl 'http://localhost:8080/api/internal/tour-api/restaurants/sync/8967a42c-0f49-4f23-a936-21451b44bb1d'
+```
+
+완료 응답 예시는 다음과 같다.
+
+```json
+{
+  "jobId": "8967a42c-0f49-4f23-a936-21451b44bb1d",
+  "status": "COMPLETED",
   "pageNo": 1,
   "nextPageNo": 2,
+  "maxItems": 100,
   "fetchedCount": 100,
   "createdCount": 80,
-  "updatedCount": 20
+  "updatedCount": 19,
+  "failedCount": 1,
+  "errorMessage": null
 }
 ```
 
@@ -63,3 +92,7 @@ curl -X POST 'http://localhost:8080/api/internal/tour-api/restaurants/sync' \
 같은 `tour_content_id`가 이미 있으면 새 행을 만들지 않고 기존 식당을 갱신한다. 초기 적재를 마치면
 추가 호출을 하지 않는 한 자동으로 다시 동기화되지 않는다. 동시 요청은 중복 저장 경합을 막기 위해
 `409 Conflict`로 거절한다.
+
+각 식당은 별도의 `REQUIRES_NEW` 트랜잭션으로 저장한다. 한 식당의 저장이 실패하면 해당 트랜잭션만
+롤백하고 나머지 식당은 계속 저장한다. 서버 로그에는 각 식당의 `contentId`와 `CREATED`, `UPDATED`
+또는 실패 원인 타입을 기록하며 TourAPI 인증키는 기록하지 않는다.
