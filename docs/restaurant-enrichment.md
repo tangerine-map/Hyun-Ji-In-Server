@@ -5,8 +5,7 @@ TourAPI로 저장한 식당의 누락 필드를 웹 검색, 원본 페이지 수
 
 ## 준비
 
-1. Ollama를 설치하고 `qwen3.5:4b` 모델을 내려받는다.
-2. `database/restaurant-enrichment.sql`을 DB에 한 번 적용한다.
+Ollama를 설치하고 `qwen3.5:4b` 모델을 내려받는다.
 
 OpenAI API와 API 키는 사용하지 않는다. 파드가 재시작되면 실행 중인 작업은 복구되지 않는다.
 
@@ -71,22 +70,32 @@ Chromium으로 Google Maps를 렌더링한다. 검색 결과에 외부 식당 �
 CAPTCHA나 429 응답을 반환하거나 로컬 모델을 사용할 수 없으면 해당 식당 작업은 실패 처리된다.
 
 서버는 `202 Accepted`와 `jobId`를 즉시 반환한다. 식당별 누락 필드만 검색하고 이미 모든 대상
-필드가 채워진 식당은 `SKIPPED` 처리한다.
+필드가 채워진 식당은 `SKIPPED` 처리한다. 추출 결과는 별도 승인 없이 저장 시점에도 비어 있는
+필드에 즉시 반영한다.
 
 ```bash
 curl 'https://hyunjiin.site/api/internal/restaurant-enrichment-jobs/JOB_ID'
-curl 'https://hyunjiin.site/api/internal/restaurant-enrichment-jobs/JOB_ID/candidates'
 ```
 
-후보에는 원본 URL, 근거 문장, AI 신뢰도가 포함된다. 기존 식당 값은 자동으로 덮어쓰지 않는다.
+응답의 `appliedFieldCount`에서 실제 반영된 필드 수를 확인할 수 있다. 기존 값은 덮어쓰지 않는다.
 
-```bash
-curl -X POST 'https://hyunjiin.site/api/internal/restaurant-enrichment-jobs/JOB_ID/apply' \
-  -H 'Content-Type: application/json' \
-  -d '{"candidateIds":[12,15,18]}'
+## 데이터 수집 파이프라인
+
+```mermaid
+flowchart LR
+    request["보강 API 호출 restaurantIds"] --> plan["식당별 누락 필드 계산"]
+    plan --> parallel["식당별 비동기 병렬 실행"]
+    parallel --> crawl["Google Maps 및 홈페이지 수집"]
+    crawl --> extract["Ollama 구조화 추출"]
+    extract --> validate["식당 일치도 및 출처 검증"]
+    validate --> transaction["식당별 REQUIRES_NEW 트랜잭션"]
+    transaction --> lock["식당 행 잠금 후 누락 여부 재확인"]
+    lock --> database[("Restaurant 및 Menu 저장")]
 ```
 
-각 후보는 독립 트랜잭션으로 반영한다. 반영 시점에도 값이 비어 있을 때만 저장한다.
+외부 수집과 AI 추출 중에는 DB 트랜잭션을 유지하지 않는다. 저장 단계에서 식당마다 별도의
+`REQUIRES_NEW` 트랜잭션을 시작하므로 한 식당의 저장 실패가 다른 식당에 전파되지 않는다. 같은
+식당에 여러 작업이 동시에 접근하면 행 잠금 후 현재 값을 다시 확인한다.
 
 ## 현재 보강 대상
 
