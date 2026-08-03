@@ -38,7 +38,7 @@ class RestaurantEnrichmentTest {
         assertTrue(restaurant.applyOpeningHoursIfMissing("매일 09:00~21:00"));
         assertTrue(restaurant.applySummaryIfMissing("제주 농산물로 빵을 만드는 베이커리"));
         assertTrue(restaurant.applyStatusIfUnknown(RestaurantStatus.OPEN));
-        assertTrue(restaurant.applyMenuIfMissing("구운 제주 감자빵", 4_500, true));
+        assertTrue(restaurant.applyMenuPriceIfMissing("구운 제주 감자빵", 4_500));
 
         assertEquals("064-123-4567", restaurant.getPhoneNumber());
         assertEquals(RestaurantStatus.OPEN, restaurant.getStatus());

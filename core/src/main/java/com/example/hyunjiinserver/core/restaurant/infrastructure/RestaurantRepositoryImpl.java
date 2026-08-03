@@ -29,6 +29,11 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     }
 
     @Override
+    public Optional<Restaurant> findByIdForUpdate(Long id) {
+        return restaurantJpaRepository.findByIdForUpdate(id);
+    }
+
+    @Override
     public Optional<Restaurant> findByTourContentId(String tourContentId) {
         return restaurantJpaRepository.findByTourContentId(tourContentId);
     }

@@ -60,10 +60,9 @@ class RestaurantEnrichmentJobServiceTest {
         executor.runAll();
 
         assertEquals(RestaurantEnrichmentExecutionStatus.COMPLETED, job.executionStatus());
-        assertEquals(RestaurantEnrichmentReviewStatus.PENDING, job.reviewStatus());
         assertEquals(1, job.count(RestaurantEnrichmentItemStatus.COMPLETED));
         assertEquals(1, job.count(RestaurantEnrichmentItemStatus.SKIPPED));
-        assertEquals(1, job.candidateCount());
+        assertEquals(1, job.appliedFieldCount());
     }
 
     private static class CapturingExecutor implements Executor {

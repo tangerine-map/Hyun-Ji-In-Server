@@ -10,6 +10,8 @@ public interface RestaurantRepository {
 
     Optional<Restaurant> findById(Long id);
 
+    Optional<Restaurant> findByIdForUpdate(Long id);
+
     Optional<Restaurant> findByTourContentId(String tourContentId);
 
     List<Restaurant> findByIds(Collection<Long> ids);

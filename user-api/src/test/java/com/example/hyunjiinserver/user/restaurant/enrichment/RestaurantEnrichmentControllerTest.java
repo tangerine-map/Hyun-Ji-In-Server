@@ -25,7 +25,7 @@ class RestaurantEnrichmentControllerTest {
                 );
             }
         };
-        RestaurantEnrichmentController controller = new RestaurantEnrichmentController(jobService, null, null);
+        RestaurantEnrichmentController controller = new RestaurantEnrichmentController(jobService);
 
         ResponseEntity<RestaurantEnrichmentJobResponse> response = controller.start(
                 new RestaurantEnrichmentJobRequest(List.of(2L, 3L))

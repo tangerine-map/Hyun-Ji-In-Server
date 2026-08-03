@@ -14,7 +14,6 @@ public class RestaurantEnrichmentJob {
     private final UUID jobId;
     private final OffsetDateTime createdAt;
     private final Map<Long, RestaurantEnrichmentJobItem> items;
-    private volatile boolean reviewCompleted;
 
     private RestaurantEnrichmentJob(UUID jobId, OffsetDateTime createdAt, Collection<Long> restaurantIds) {
         this.jobId = jobId;
@@ -53,10 +52,6 @@ public class RestaurantEnrichmentJob {
         items.computeIfPresent(restaurantId, (id, item) -> item.failed(message));
     }
 
-    void completeReview() {
-        reviewCompleted = true;
-    }
-
     public int requestedCount() {
         return items.size();
     }
@@ -65,8 +60,8 @@ public class RestaurantEnrichmentJob {
         return (int) items.values().stream().filter(item -> item.status() == status).count();
     }
 
-    public int candidateCount() {
-        return items.values().stream().mapToInt(RestaurantEnrichmentJobItem::candidateCount).sum();
+    public int appliedFieldCount() {
+        return items.values().stream().mapToInt(RestaurantEnrichmentJobItem::appliedFieldCount).sum();
     }
 
     public RestaurantEnrichmentExecutionStatus executionStatus() {
@@ -84,19 +79,4 @@ public class RestaurantEnrichmentJob {
         return RestaurantEnrichmentExecutionStatus.COMPLETED;
     }
 
-    public RestaurantEnrichmentReviewStatus reviewStatus() {
-        if (executionStatus() == RestaurantEnrichmentExecutionStatus.RUNNING) {
-            return RestaurantEnrichmentReviewStatus.NOT_READY;
-        }
-        if (candidateCount() == 0) {
-            return RestaurantEnrichmentReviewStatus.NOT_REQUIRED;
-        }
-        return reviewCompleted
-                ? RestaurantEnrichmentReviewStatus.COMPLETED
-                : RestaurantEnrichmentReviewStatus.PENDING;
-    }
-
-    public boolean isFinished() {
-        return executionStatus() != RestaurantEnrichmentExecutionStatus.RUNNING;
-    }
 }

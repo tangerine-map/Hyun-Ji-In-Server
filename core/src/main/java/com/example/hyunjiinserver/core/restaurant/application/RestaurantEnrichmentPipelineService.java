@@ -16,7 +16,7 @@ public class RestaurantEnrichmentPipelineService {
 
     private final RestaurantEnrichmentPlanningService planningService;
     private final RestaurantInformationEnrichmentClient enrichmentClient;
-    private final RestaurantEnrichmentCandidateCommandService candidateCommandService;
+    private final RestaurantEnrichmentAutoApplyService autoApplyService;
     private final RestaurantEnrichmentProperties properties;
 
     public RestaurantEnrichmentPipelineResult enrichOne(
@@ -45,15 +45,15 @@ public class RestaurantEnrichmentPipelineService {
                 jobId, restaurantId, plan.restaurantName(), plan.missingFields());
         int maxSources = Math.max(1, Math.min(properties.getMaxSourcesPerRestaurant(), 20));
         RestaurantInformationEnrichmentResult enriched = enrichmentClient.enrich(plan, maxSources);
-        int candidateCount = candidateCommandService.saveAll(jobId, restaurantId, enriched.candidates());
+        int appliedFieldCount = autoApplyService.apply(restaurantId, enriched.candidates());
         log.info(
-                "Restaurant enrichment completed. jobId={}, restaurantId={}, name={}, searchedSources={}, fetchedSources={}, candidates={}",
+                "Restaurant enrichment completed. jobId={}, restaurantId={}, name={}, searchedSources={}, fetchedSources={}, appliedFields={}",
                 jobId,
                 restaurantId,
                 plan.restaurantName(),
                 enriched.sourceCount(),
                 enriched.fetchedCount(),
-                candidateCount
+                appliedFieldCount
         );
         return new RestaurantEnrichmentPipelineResult(
                 restaurantId,
@@ -62,7 +62,7 @@ public class RestaurantEnrichmentPipelineService {
                 plan.missingFields(),
                 enriched.sourceCount(),
                 enriched.fetchedCount(),
-                candidateCount
+                appliedFieldCount
         );
     }
 }

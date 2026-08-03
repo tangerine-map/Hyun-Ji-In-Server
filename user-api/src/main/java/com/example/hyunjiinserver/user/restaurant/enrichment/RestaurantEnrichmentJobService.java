@@ -65,16 +65,6 @@ public class RestaurantEnrichmentJobService {
         return job;
     }
 
-    public void ensureFinished(UUID jobId) {
-        if (!get(jobId).isFinished()) {
-            throw new BusinessException(RestaurantErrorCode.ENRICHMENT_JOB_NOT_COMPLETED);
-        }
-    }
-
-    public void completeReview(UUID jobId) {
-        get(jobId).completeReview();
-    }
-
     private void executeOne(
             RestaurantEnrichmentJob job,
             Long restaurantId

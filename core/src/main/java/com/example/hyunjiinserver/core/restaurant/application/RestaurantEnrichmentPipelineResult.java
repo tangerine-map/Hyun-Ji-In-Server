@@ -10,7 +10,7 @@ public record RestaurantEnrichmentPipelineResult(
         Set<RestaurantEnrichmentField> missingFields,
         int searchedSourceCount,
         int fetchedSourceCount,
-        int candidateCount
+        int appliedFieldCount
 ) {
 
     public static RestaurantEnrichmentPipelineResult skipped(RestaurantEnrichmentPlan plan) {

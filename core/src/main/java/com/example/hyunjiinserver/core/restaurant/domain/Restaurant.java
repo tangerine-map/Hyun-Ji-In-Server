@@ -195,7 +195,7 @@ public class Restaurant {
         return true;
     }
 
-    public boolean applyMenuIfMissing(String menuName, Integer price, boolean representative) {
+    public boolean applyDiscoveredMenu(String menuName, Integer price, boolean representative) {
         if (isBlank(menuName)) {
             return false;
         }
@@ -210,6 +210,17 @@ public class Restaurant {
         boolean shouldBeRepresentative = representative && representativeMenu().isEmpty();
         menus.add(RestaurantMenu.discovered(this, menuName.trim(), price, shouldBeRepresentative));
         return true;
+    }
+
+    public boolean applyMenuPriceIfMissing(String menuName, Integer price) {
+        if (isBlank(menuName)) {
+            return false;
+        }
+        return menus.stream()
+                .filter(menu -> menu.hasSameName(menuName))
+                .findFirst()
+                .map(menu -> menu.applyPriceIfMissing(price))
+                .orElse(false);
     }
 
     public boolean hasMissingPhoneNumber() {

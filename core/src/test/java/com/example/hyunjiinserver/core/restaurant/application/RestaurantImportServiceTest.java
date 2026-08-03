@@ -130,6 +130,11 @@ class RestaurantImportServiceTest {
         }
 
         @Override
+        public Optional<Restaurant> findByIdForUpdate(Long id) {
+            return Optional.empty();
+        }
+
+        @Override
         public Optional<Restaurant> findByTourContentId(String tourContentId) {
             return Optional.ofNullable(restaurants.get(tourContentId));
         }

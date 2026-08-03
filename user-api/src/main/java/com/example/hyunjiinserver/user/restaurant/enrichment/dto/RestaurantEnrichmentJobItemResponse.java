@@ -12,7 +12,7 @@ public record RestaurantEnrichmentJobItemResponse(
         Set<RestaurantEnrichmentField> missingFields,
         int searchedSourceCount,
         int fetchedSourceCount,
-        int candidateCount,
+        int appliedFieldCount,
         String errorMessage
 ) {
 
@@ -24,7 +24,7 @@ public record RestaurantEnrichmentJobItemResponse(
                 item.missingFields(),
                 item.searchedSourceCount(),
                 item.fetchedSourceCount(),
-                item.candidateCount(),
+                item.appliedFieldCount(),
                 item.errorMessage()
         );
     }

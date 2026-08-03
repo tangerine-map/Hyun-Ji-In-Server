@@ -11,7 +11,7 @@ public record RestaurantEnrichmentJobItem(
         Set<RestaurantEnrichmentField> missingFields,
         int searchedSourceCount,
         int fetchedSourceCount,
-        int candidateCount,
+        int appliedFieldCount,
         String errorMessage
 ) {
 
@@ -31,7 +31,7 @@ public record RestaurantEnrichmentJobItem(
     RestaurantEnrichmentJobItem running() {
         return new RestaurantEnrichmentJobItem(
                 restaurantId, restaurantName, RestaurantEnrichmentItemStatus.RUNNING,
-                missingFields, searchedSourceCount, fetchedSourceCount, candidateCount, null
+                missingFields, searchedSourceCount, fetchedSourceCount, appliedFieldCount, null
         );
     }
 
@@ -43,7 +43,7 @@ public record RestaurantEnrichmentJobItem(
                 result.missingFields(),
                 result.searchedSourceCount(),
                 result.fetchedSourceCount(),
-                result.candidateCount(),
+                result.appliedFieldCount(),
                 null
         );
     }
@@ -51,7 +51,7 @@ public record RestaurantEnrichmentJobItem(
     RestaurantEnrichmentJobItem failed(String message) {
         return new RestaurantEnrichmentJobItem(
                 restaurantId, restaurantName, RestaurantEnrichmentItemStatus.FAILED,
-                missingFields, searchedSourceCount, fetchedSourceCount, candidateCount, message
+                missingFields, searchedSourceCount, fetchedSourceCount, appliedFieldCount, message
         );
     }
 }
