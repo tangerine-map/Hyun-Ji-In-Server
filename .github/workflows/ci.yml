@@ -11,7 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/hyunjiin-user-api
+  USER_API_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/hyunjiin-user-api
+  CRAWLER_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/hyunjiin-crawler
 
 jobs:
   verify:
@@ -38,6 +39,19 @@ jobs:
       - name: Compile and test user API
         run: ./gradlew :user-api:compileJava :user-api:test --no-daemon
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: crawler/pyproject.toml
+
+      - name: Install crawler test dependencies
+        run: python -m pip install -e './crawler[test]'
+
+      - name: Test crawler
+        run: python -m pytest crawler/tests -q
+
   publish-image:
     name: Publish user API image
     runs-on: ubuntu-latest
@@ -62,23 +76,41 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract image metadata
-        id: meta
+      - name: Extract user API image metadata
+        id: user-api-meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ env.USER_API_IMAGE_NAME }}
           tags: |
             type=sha,prefix=
             type=raw,value=latest
 
-      - name: Build and push image
+      - name: Build and push user API image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.user-api-meta.outputs.tags }}
+          labels: ${{ steps.user-api-meta.outputs.labels }}
+
+      - name: Extract crawler image metadata
+        id: crawler-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.CRAWLER_IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest
+
+      - name: Build and push crawler image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./crawler
+          file: ./crawler/Dockerfile
+          push: true
+          tags: ${{ steps.crawler-meta.outputs.tags }}
+          labels: ${{ steps.crawler-meta.outputs.labels }}
 
       - name: Checkout manifest repository
         uses: actions/checkout@v4
@@ -87,7 +119,7 @@ jobs:
           token: ${{ secrets.MANIFEST_REPO_TOKEN }}
           path: manifest
 
-      - name: Update manifest image tag
+      - name: Update manifest image tags
         run: |
           SHORT_SHA="${GITHUB_SHA::7}"
           KUSTOMIZATION="manifest/apps/hyunjiin-user-api/overlays/prod/kustomization.yaml"
