@@ -162,4 +162,85 @@ public class Restaurant {
         }
         menus.add(RestaurantMenu.unpricedRepresentative(this, representativeMenuName));
     }
+
+    public boolean applyPhoneNumberIfMissing(String candidate) {
+        if (!isBlank(phoneNumber) || isBlank(candidate)) {
+            return false;
+        }
+        phoneNumber = candidate.trim();
+        return true;
+    }
+
+    public boolean applyOpeningHoursIfMissing(String candidate) {
+        if (!isMissingOpeningHours() || isBlank(candidate)) {
+            return false;
+        }
+        openingHours = candidate.trim();
+        return true;
+    }
+
+    public boolean applySummaryIfMissing(String candidate) {
+        if (!isBlank(summary) || isBlank(candidate)) {
+            return false;
+        }
+        summary = candidate.trim();
+        return true;
+    }
+
+    public boolean applyStatusIfUnknown(RestaurantStatus candidate) {
+        if (status != RestaurantStatus.UNKNOWN || candidate == null || candidate == RestaurantStatus.UNKNOWN) {
+            return false;
+        }
+        status = candidate;
+        return true;
+    }
+
+    public boolean applyMenuIfMissing(String menuName, Integer price, boolean representative) {
+        if (isBlank(menuName)) {
+            return false;
+        }
+
+        Optional<RestaurantMenu> existing = menus.stream()
+                .filter(menu -> menu.hasSameName(menuName))
+                .findFirst();
+        if (existing.isPresent()) {
+            return existing.get().applyPriceIfMissing(price);
+        }
+
+        boolean shouldBeRepresentative = representative && representativeMenu().isEmpty();
+        menus.add(RestaurantMenu.discovered(this, menuName.trim(), price, shouldBeRepresentative));
+        return true;
+    }
+
+    public boolean hasMissingPhoneNumber() {
+        return isBlank(phoneNumber);
+    }
+
+    public boolean hasMissingOpeningHours() {
+        return isMissingOpeningHours();
+    }
+
+    public boolean hasMissingSummary() {
+        return isBlank(summary);
+    }
+
+    public boolean hasUnknownStatus() {
+        return status == RestaurantStatus.UNKNOWN;
+    }
+
+    public boolean hasNoMenus() {
+        return menus.isEmpty();
+    }
+
+    public boolean hasUnpricedMenus() {
+        return menus.stream().anyMatch(menu -> menu.getPrice() == null);
+    }
+
+    private boolean isMissingOpeningHours() {
+        return isBlank(openingHours) || "-".equals(openingHours.trim());
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
 }

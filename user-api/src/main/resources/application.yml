@@ -34,3 +34,8 @@ tour-api:
   mobile-app: ${TOUR_API_MOBILE_APP:hyunjiin}
   area-code: ${TOUR_API_AREA_CODE:39}
   content-type-id: ${TOUR_API_CONTENT_TYPE_ID:39}
+
+restaurant-enrichment:
+  max-sources-per-restaurant: ${RESTAURANT_ENRICHMENT_MAX_SOURCES:5}
+  parallelism: ${RESTAURANT_ENRICHMENT_PARALLELISM:3}
+  crawler-base-url: ${RESTAURANT_ENRICHMENT_CRAWLER_BASE_URL:http://localhost:8001}

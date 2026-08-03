@@ -44,9 +44,34 @@ public class RestaurantMenu {
         return menu;
     }
 
+    static RestaurantMenu discovered(Restaurant restaurant, String name, Integer price, boolean representative) {
+        RestaurantMenu menu = new RestaurantMenu();
+        menu.restaurant = restaurant;
+        menu.name = name;
+        menu.price = price;
+        menu.representative = representative;
+        return menu;
+    }
+
     void updateImportedName(String name) {
         if (price == null) {
             this.name = name;
         }
+    }
+
+    boolean hasSameName(String candidate) {
+        return normalize(name).equals(normalize(candidate));
+    }
+
+    boolean applyPriceIfMissing(Integer candidate) {
+        if (price != null || candidate == null || candidate < 0) {
+            return false;
+        }
+        price = candidate;
+        return true;
+    }
+
+    private static String normalize(String value) {
+        return value == null ? "" : value.replaceAll("[\\s·ㆍ_-]", "").toLowerCase();
     }
 }
