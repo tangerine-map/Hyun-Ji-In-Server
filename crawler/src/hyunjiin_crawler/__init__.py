@@ -1,0 +1,1 @@
+"""Hyunjiin restaurant crawler service."""

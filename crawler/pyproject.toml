@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hyunjiin-crawler"
+version = "0.1.0"
+description = "Playwright crawler for Hyunjiin restaurant enrichment"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13,<5",
+    "fastapi>=0.116,<1",
+    "httpx>=0.28,<1",
+    "playwright==1.61.0",
+    "pydantic>=2.11,<3",
+    "uvicorn[standard]>=0.35,<1",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.4,<9",
+    "pytest-asyncio>=1.1,<2",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
